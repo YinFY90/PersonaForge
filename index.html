@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PersonaForge — 锻造你的人物 Agent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=Noto+Serif+SC:wght@400;600;900&family=Sora:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-void:#050b18;
+  --bg-deep:#0a1424;
+  --bg-surface:#0f1e36;
+  --bg-card:#132845;
+  --bg-card-hover:#18335a;
+  --bg-raised:#1c3a63;
+  --border:rgba(255,255,255,.07);
+  --border-strong:rgba(255,255,255,.14);
+  --border-gold:rgba(212,175,55,.3);
+  --text-primary:#e8edf3;
+  --text-secondary:#9baec8;
+  --text-muted:#5a7392;
+  --gold:#d4af37;
+  --gold-soft:#c9a961;
+  --gold-dim:rgba(212,175,55,.08);
+  --gold-glow:rgba(212,175,55,.15);
+  --blue:#4a8fd9;
+  --blue-dim:rgba(74,143,217,.1);
+  --red:#e05656;
+  --green:#4ade80;
+  --radius:10px;
+  --radius-sm:6px;
+  --radius-lg:16px;
+  --font-display:'Fraunces','Noto Serif SC',serif;
+  --font-body:'Sora','Noto Sans SC',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --transition:.25s cubic-bezier(.4,0,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:15px}
+body{
+  font-family:var(--font-body);
+  background:var(--bg-void);color:var(--text-primary);
+  line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+::selection{background:var(--gold-glow);color:var(--gold)}
+.bg-env{position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(ellipse 70% 50% at 20% 0%,rgba(212,175,55,.04),transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%,rgba(74,143,217,.06),transparent),
+    linear-gradient(180deg,var(--bg-void),var(--bg-deep));}
+.bg-noise{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.3;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:14px 40px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(5,11,24,.75);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);}
+.nav-logo{font-family:var(--font-display);font-size:20px;font-weight:600;letter-spacing:-.3px}
+.nav-logo span{color:var(--gold)}
+.nav-right{display:flex;gap:20px;align-items:center}
+.nav-link{color:var(--text-secondary);text-decoration:none;font-size:13px;transition:var(--transition)}
+.nav-link:hover{color:var(--gold)}
+.nav-icon-btn{background:none;border:1px solid var(--border-strong);border-radius:var(--radius-sm);
+  color:var(--text-secondary);padding:6px 12px;cursor:pointer;font-size:12px;
+  font-family:var(--font-body);transition:var(--transition);display:flex;align-items:center;gap:6px}
+.nav-icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+.nav-cta{padding:8px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-soft));
+  color:var(--bg-void);border:none;border-radius:var(--radius-sm);
+  font-family:var(--font-body);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition)}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 20px var(--gold-glow)}
+@media(max-width:768px){.nav{padding:10px 16px}.nav-right .nav-link{display:none}}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:100px 40px 80px;text-align:center;position:relative}
+.hero-tag{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);
+  font-weight:600;margin-bottom:20px;opacity:0;animation:fu .7s .1s both}
+.hero h1{font-family:var(--font-display);font-size:clamp(42px,7vw,80px);font-weight:300;
+  line-height:1.08;letter-spacing:-1.5px;margin-bottom:24px;max-width:820px;
+  opacity:0;animation:fu .7s .2s both}
+.hero h1 em{font-style:italic;font-weight:600;
+  background:linear-gradient(135deg,var(--gold),var(--gold-soft));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:clamp(15px,1.8vw,18px);color:var(--text-secondary);max-width:580px;
+  line-height:1.7;margin-bottom:40px;opacity:0;animation:fu .7s .4s both}
+.hero-sub strong{color:var(--gold);font-weight:500}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  opacity:0;animation:fu .7s .6s both}
+.btn-primary{padding:13px 28px;background:linear-gradient(135deg,var(--gold),var(--gold-soft));
+  color:var(--bg-void);border:none;border-radius:var(--radius);font-family:var(--font-body);
+  font-size:14px;font-weight:600;cursor:pointer;transition:var(--transition);
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px var(--gold-glow)}
+.btn-secondary{padding:13px 28px;background:transparent;color:var(--text-primary);
+  border:1px solid var(--border-strong);border-radius:var(--radius);font-family:var(--font-body);
+  font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition);
+  display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold)}
+.btn-ghost{padding:10px 20px;background:transparent;color:var(--text-muted);
+  border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-body);
+  font-size:13px;cursor:pointer;transition:var(--transition)}
+.btn-ghost:hover{color:var(--text-secondary);border-color:var(--border-strong)}
+.hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text-muted);font-size:11px;
+  opacity:0;animation:fu .7s .9s both}
+.hero-scroll-line{width:1px;height:32px;background:linear-gradient(180deg,var(--gold),transparent)}
+@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.section{padding:90px 40px;max-width:1100px;margin:0 auto}
+.section-label{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);
+  font-weight:600;margin-bottom:14px}
+.section-title{font-family:var(--font-display);font-size:clamp(28px,4.5vw,46px);font-weight:400;
+  line-height:1.2;letter-spacing:-.8px;margin-bottom:20px}
+.section-title em{font-style:italic;color:var(--gold)}
+.section-desc{font-size:16px;color:var(--text-secondary);max-width:640px;line-height:1.7;margin-bottom:40px}
+
+.insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+.insight-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px;transition:var(--transition)}
+.insight-card:hover{background:var(--bg-card);border-color:var(--border-gold);transform:translateY(-3px)}
+.insight-num{font-family:var(--font-display);font-size:13px;color:var(--gold);font-weight:600;margin-bottom:14px}
+.insight-card h4{font-size:16px;font-weight:600;margin-bottom:8px}
+.insight-card p{font-size:13px;color:var(--text-secondary);line-height:1.65}
+.insight-card .code-inline{font-family:var(--font-mono);font-size:12px;color:var(--gold);
+  background:var(--gold-dim);padding:2px 6px;border-radius:3px}
+@media(max-width:768px){.insight-grid{grid-template-columns:1fr}}
+
+.forge-section{background:linear-gradient(180deg,transparent,rgba(212,175,55,.02));
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:90px 40px}
+.forge-inner{max-width:1100px;margin:0 auto}
+.forge-hero{text-align:center;margin-bottom:48px}
+.forge-hero h2{font-family:var(--font-display);font-size:clamp(28px,4.5vw,46px);font-weight:400;margin-bottom:16px}
+.forge-hero h2 em{font-style:italic;color:var(--gold)}
+.forge-hero p{color:var(--text-secondary);font-size:16px;max-width:600px;margin:0 auto}
+
+.forge-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:40px}
+.forge-step{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px 16px;text-align:center;transition:var(--transition);cursor:default;position:relative}
+.forge-step.active{border-color:var(--gold);background:var(--bg-card);box-shadow:0 0 20px var(--gold-glow)}
+.forge-step.done{opacity:.7}
+.forge-step-icon{width:40px;height:40px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;
+  background:var(--gold-dim);border-radius:50%;color:var(--gold)}
+.forge-step.active .forge-step-icon{background:var(--gold);color:var(--bg-void)}
+.forge-step-icon svg{width:18px;height:18px}
+.forge-step h5{font-size:13px;font-weight:600;margin-bottom:4px}
+.forge-step p{font-size:11px;color:var(--text-muted);line-height:1.4}
+@media(max-width:768px){.forge-steps{grid-template-columns:repeat(2,1fr);gap:8px}}
+
+.forge-panel{background:var(--bg-surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);
+  overflow:hidden}
+.forge-panel-header{padding:20px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.forge-panel-header h3{font-family:var(--font-display);font-size:18px;font-weight:600}
+.forge-panel-body{padding:28px;min-height:320px}
+
+.forge-input-group{margin-bottom:20px}
+.forge-input-group label{display:block;font-size:13px;color:var(--text-secondary);margin-bottom:8px;font-weight:500}
+.forge-input-group textarea,.forge-input-group input,.forge-input-group select{width:100%;padding:12px 16px;
+  background:var(--bg-deep);border:1px solid var(--border-strong);border-radius:var(--radius);
+  color:var(--text-primary);font-family:var(--font-body);font-size:14px;transition:var(--transition);resize:vertical}
+.forge-input-group textarea{min-height:120px;line-height:1.6}
+.forge-input-group textarea:focus,.forge-input-group input:focus,.forge-input-group select:focus{
+  outline:none;border-color:var(--gold)}
+.forge-input-group select{appearance:none;cursor:pointer}
+.forge-input-group .hint{font-size:12px;color:var(--text-muted);margin-top:6px}
+.preset-personas{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.preset-card{background:var(--bg-deep);border:2px solid var(--border);border-radius:var(--radius);
+  padding:16px 12px;text-align:center;cursor:pointer;transition:var(--transition)}
+.preset-card:hover,.preset-card.selected{border-color:var(--gold);background:var(--bg-card)}
+.preset-avatar{width:40px;height:40px;margin:0 auto 8px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-display);
+  font-size:16px;font-weight:600;color:var(--bg-void);
+  background:linear-gradient(135deg,var(--gold),var(--gold-soft))}
+.preset-card h6{font-size:12px;font-weight:600;margin-bottom:2px}
+.preset-card p{font-size:10px;color:var(--text-muted)}
+@media(max-width:768px){.preset-personas{grid-template-columns:repeat(2,1fr)}}
+
+.forge-output{background:var(--bg-deep);border:1px solid var(--border);border-radius:var(--radius);padding:20px;
+  min-height:200px;max-height:400px;overflow-y:auto;font-family:var(--font-body);font-size:14px;
+  line-height:1.8;color:var(--text-secondary);white-space:pre-wrap}
+.forge-output::-webkit-scrollbar{width:4px}
+.forge-output::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:4px}
+.forge-cursor{display:inline-block;width:8px;height:16px;background:var(--gold);
+  animation:blink 0.8s infinite;vertical-align:text-bottom;margin-left:2px}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.forge-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+
+.persona-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.persona-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px 20px;text-align:center;transition:var(--transition);cursor:pointer}
+.persona-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.persona-card .avatar{width:56px;height:56px;margin:0 auto 14px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:22px;font-weight:600;
+  color:var(--bg-void);background:linear-gradient(135deg,var(--gold),var(--gold-soft))}
+.persona-card h4{font-size:15px;font-weight:600;margin-bottom:3px}
+.persona-card .title{font-size:12px;color:var(--gold);margin-bottom:10px}
+.persona-card p{font-size:12px;color:var(--text-muted);line-height:1.5;font-style:italic}
+.persona-card .chat-btn{margin-top:14px;padding:6px 16px;background:var(--gold-dim);border:1px solid var(--border-gold);
+  border-radius:20px;color:var(--gold);font-size:12px;cursor:pointer;font-family:var(--font-body);transition:var(--transition)}
+.persona-card .chat-btn:hover{background:var(--gold);color:var(--bg-void)}
+@media(max-width:768px){.persona-grid{grid-template-columns:1fr 1fr;gap:12px}}
+
+.method-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.method-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:32px;transition:var(--transition)}
+.method-card:hover{border-color:var(--border-gold)}
+.method-card h4{font-family:var(--font-display);font-size:18px;font-weight:600;margin-bottom:12px}
+.method-card p{font-size:14px;color:var(--text-secondary);line-height:1.7;margin-bottom:12px}
+.method-card ul{list-style:none;padding:0}
+.method-card li{padding:8px 0;font-size:13px;color:var(--text-secondary);display:flex;gap:10px;align-items:flex-start}
+.method-card li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--gold);margin-top:8px;flex-shrink:0}
+@media(max-width:768px){.method-grid{grid-template-columns:1fr}}
+
+.scene-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.scene-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:20px;transition:var(--transition)}
+.scene-card:hover{border-color:var(--border-gold);background:var(--bg-card)}
+.scene-card h5{font-size:14px;font-weight:600;margin-bottom:6px}
+.scene-card p{font-size:12px;color:var(--text-muted);line-height:1.5}
+@media(max-width:768px){.scene-grid{grid-template-columns:1fr 1fr}}
+
+.cta-block{text-align:center;padding:80px 40px}
+.cta-block h2{font-family:var(--font-display);font-size:clamp(28px,4vw,42px);font-weight:400;margin-bottom:16px}
+.cta-block h2 em{font-style:italic;color:var(--gold)}
+.cta-block p{color:var(--text-secondary);font-size:16px;margin-bottom:28px}
+
+.footer{padding:40px;text-align:center;border-top:1px solid var(--border);margin-top:60px}
+.footer p{font-size:12px;color:var(--text-muted)}
+
+.overlay{position:fixed;inset:0;z-index:300;background:rgba(5,11,24,.96);backdrop-filter:blur(24px);
+  display:none;flex-direction:column;opacity:0;transition:opacity .25s}
+.overlay.active{display:flex;opacity:1}
+.overlay-header{padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);flex-shrink:0}
+.overlay-header-left{display:flex;align-items:center;gap:12px}
+.back-btn{background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:13px;
+  display:flex;align-items:center;gap:5px;font-family:var(--font-body);transition:var(--transition);padding:6px}
+.back-btn:hover{color:var(--gold)}
+.overlay-title{font-family:var(--font-display);font-size:16px;font-weight:600}
+.overlay-title span{color:var(--gold)}
+.overlay-header-right{display:flex;gap:8px}
+.icon-btn{width:34px;height:34px;background:var(--bg-surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+.icon-btn svg{width:16px;height:16px}
+
+.api-setup{flex:1;display:flex;align-items:center;justify-content:center;padding:40px}
+.api-setup-box{max-width:480px;width:100%}
+.api-setup-box h2{font-family:var(--font-display);font-size:28px;font-weight:400;margin-bottom:8px}
+.api-setup-box h2 em{font-style:italic;color:var(--gold)}
+.api-setup-box>p{color:var(--text-secondary);font-size:14px;margin-bottom:24px;line-height:1.6}
+.api-setup-box .form-group{margin-bottom:16px}
+.api-setup-box label{display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;
+  text-transform:uppercase;letter-spacing:1px}
+.api-setup-box input{width:100%;padding:10px 14px;background:var(--bg-deep);border:1px solid var(--border-strong);
+  border-radius:var(--radius-sm);color:var(--text-primary);font-family:var(--font-body);font-size:14px;transition:var(--transition)}
+.api-setup-box input:focus{outline:none;border-color:var(--gold)}
+.api-setup-box .api-hint{font-size:12px;color:var(--text-muted);margin-top:8px;line-height:1.5}
+.api-setup-box .api-hint code{font-family:var(--font-mono);font-size:11px;color:var(--gold);background:var(--gold-dim);padding:1px 5px;border-radius:3px}
+
+.chat-wrap{flex:1;display:none;flex-direction:column;max-width:780px;width:100%;margin:0 auto;padding:0 24px}
+.chat-wrap.active{display:flex}
+.chat-messages{flex:1;overflow-y:auto;padding:20px 0;display:flex;flex-direction:column;gap:14px}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-messages::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px}
+.msg{max-width:82%;padding:12px 16px;border-radius:var(--radius);font-size:14px;line-height:1.7;animation:msgIn .2s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg-user{align-self:flex-end;background:var(--bg-raised);color:var(--text-primary);border-bottom-right-radius:3px}
+.msg-agent{align-self:flex-start;background:var(--bg-surface);border:1px solid var(--border);
+  color:var(--text-primary);border-bottom-left-radius:3px}
+.msg-agent .msg-meta{font-family:var(--font-display);font-size:12px;color:var(--gold);font-weight:600;margin-bottom:5px;
+  display:flex;align-items:center;gap:8px}
+.msg-agent .msg-meta .badge{font-size:10px;padding:1px 6px;background:var(--gold-dim);border:1px solid var(--border-gold);
+  border-radius:3px;color:var(--gold);font-family:var(--font-body);font-weight:500}
+.msg-typing{align-self:flex-start;background:var(--bg-surface);border:1px solid var(--border);
+  padding:14px 18px;border-radius:var(--radius);border-bottom-left-radius:3px}
+.typing-dots{display:flex;gap:4px}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--gold);opacity:.3;animation:tb 1.3s infinite}
+.typing-dot:nth-child(2){animation-delay:.15s}.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes tb{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-5px)}}
+.preset-bar{padding:10px 0;display:flex;gap:6px;flex-wrap:wrap;overflow-x:auto}
+.preset-chip{padding:6px 12px;background:transparent;border:1px solid var(--border-strong);border-radius:16px;
+  color:var(--text-secondary);font-size:12px;cursor:pointer;white-space:nowrap;font-family:var(--font-body);transition:var(--transition);flex-shrink:0}
+.preset-chip:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim)}
+.chat-input-row{padding:12px 0 20px;display:flex;gap:8px;align-items:center}
+.chat-input{flex:1;padding:12px 16px;background:var(--bg-surface);border:1px solid var(--border-strong);
+  border-radius:var(--radius);color:var(--text-primary);font-family:var(--font-body);font-size:14px;transition:var(--transition)}
+.chat-input:focus{outline:none;border-color:var(--gold)}
+.chat-send{padding:12px 20px;background:linear-gradient(135deg,var(--gold),var(--gold-soft));
+  color:var(--bg-void);border:none;border-radius:var(--radius);font-family:var(--font-body);font-size:14px;
+  font-weight:600;cursor:pointer;transition:var(--transition);white-space:nowrap}
+.chat-send:hover{box-shadow:0 4px 16px var(--gold-glow)}
+.chat-send:disabled{opacity:.4;cursor:not-allowed}
+
+.sp-viewer{flex:1;display:none;overflow-y:auto;padding:24px}
+.sp-viewer.active{display:block}
+.sp-viewer-box{max-width:780px;margin:0 auto}
+.sp-viewer h3{font-family:var(--font-display);font-size:20px;font-weight:600;margin-bottom:16px}
+.sp-viewer .sp-section{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.sp-viewer .sp-section h5{font-size:13px;color:var(--gold);font-weight:600;margin-bottom:8px;font-family:var(--font-mono)}
+.sp-viewer .sp-section p,.sp-viewer .sp-section li{font-size:13px;color:var(--text-secondary);line-height:1.7}
+.sp-viewer .sp-section ul{list-style:none;padding:0}
+.sp-viewer .sp-section li{padding:4px 0;display:flex;gap:8px}
+.sp-viewer .sp-section li::before{content:'→';color:var(--gold);flex-shrink:0}
+
+@media(max-width:768px){
+  .section{padding:60px 16px}.hero{padding:80px 16px 60px}.forge-section{padding:60px 16px}
+  .footer{padding:28px 16px}.chat-wrap{padding:0 12px}.overlay-header{padding:10px 14px}
+  .forge-panel-body{padding:16px}
+}
+</style>
+</head>
+<body>
+<div class="bg-env"></div><div class="bg-noise"></div>
+
+<nav class="nav">
+  <div class="nav-logo">Persona<span>Forge</span></div>
+  <div class="nav-right">
+    <a href="#method" class="nav-link">方法论</a>
+    <a href="#forge" class="nav-link">锻造台</a>
+    <a href="#personas" class="nav-link">示例人物</a>
+    <button class="nav-icon-btn" onclick="showSettings()" title="API 设置">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      API
+    </button>
+    <button class="nav-cta" onclick="document.getElementById('forge').scrollIntoView({behavior:'smooth'})">开始锻造</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">TRAE AI 创造力大赛 · 学习工作赛道</div>
+  <h1>把人物资料<em>锻造</em>成<br>可对话的 AI Agent</h1>
+  <p class="hero-sub">这是一套<strong>LLM 驱动的生产方法</strong>：输入人物的书、演讲、访谈、文章，通过原则提炼、思考重建、风格校准，生成一个真正用该人物思维方式回答问题的 Agent。不是预设模板，是真实的 LLM 推理。</p>
+  <div class="hero-actions">
+    <button class="btn-primary" onclick="document.getElementById('forge').scrollIntoView({behavior:'smooth'})">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      进入锻造台
+    </button>
+    <a href="#method" class="btn-secondary">了解方法论</a>
+  </div>
+  <div class="hero-scroll"><span>向下探索</span><div class="hero-scroll-line"></div></div>
+</section>
+
+<section class="section" id="method">
+  <div class="section-label">核心洞察</div>
+  <h2 class="section-title">为什么需要<em>锻造</em>，而不是堆资料？</h2>
+  <p class="section-desc">把资料丢进 RAG 不等于理解了人物。PersonaForge 的核心是把原始资料"锻造"成结构化的 Agent 人格——让 LLM 像那个人一样思考，而不是检索到哪段就念哪段。</p>
+  <div class="insight-grid">
+    <div class="insight-card">
+      <div class="insight-num">01</div>
+      <h4>原则提炼，不是摘要</h4>
+      <p>不做"总结要点"式的摘要。而是从资料中提炼出人物<span class="code-inline">决策原则</span>、<span class="code-inline">思维框架</span>、<span class="code-inline">行为边界</span>——这些才是驱动判断的引擎。</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num">02</div>
+      <h4>思考重建，不是检索</h4>
+      <p>RAG 检索到原文片段，但不会像人物那样推理。PersonaForge 把原则写入 <span class="code-inline">system prompt</span>，让 LLM 用这些原则做<span class="code-inline">实时推理</span>，不是拼贴原文。</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-num">03</div>
+      <h4>风格校准，不是模仿</h4>
+      <p>不只是口头禅模仿。要提取<span class="code-inline">表达节奏</span>、<span class="code-inline">类比偏好</span>、<span class="code-inline">不确定性措辞</span>（"大概率""我觉得"），让回答像那个人在说话。</p>
+    </div>
+  </div>
+</section>
+
+<section class="forge-section" id="forge">
+  <div class="forge-inner">
+    <div class="forge-hero">
+      <h2>锻造工作台 — <em>亲手造一个人物 Agent</em></h2>
+      <p>选择一个预设人物，或输入自定义人物名称和资料。真实 LLM 会把人物资料锻造为 Agent 的 system prompt，然后你就可以和 TA 对话了。</p>
+    </div>
+
+    <div class="forge-steps" id="forgeSteps">
+      <div class="forge-step active" data-step="0">
+        <div class="forge-step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+        <h5>选人物</h5><p>选预设或自定义</p>
+      </div>
+      <div class="forge-step" data-step="1">
+        <div class="forge-step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+        <h5>提炼原则</h5><p>LLM 从资料抽取</p>
+      </div>
+      <div class="forge-step" data-step="2">
+        <div class="forge-step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 10v6M4.22 4.22l4.24 4.24m7.08 7.08l4.24 4.24M1 12h6m10 0h6M4.22 19.78l4.24-4.24m7.08-7.08l4.24-4.24"/></svg></div>
+        <h5>组装 Agent</h5><p>系统提示词生成</p>
+      </div>
+      <div class="forge-step" data-step="3">
+        <div class="forge-step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h5>开始对话</h5><p>和 TA 真实交流</p>
+      </div>
+    </div>
+
+    <div class="forge-panel">
+      <div class="forge-panel-header">
+        <h3 id="forgePanelTitle">选择人物</h3>
+        <span style="font-size:12px;color:var(--text-muted)" id="forgePanelHint">第一步：选择你要锻造的人物</span>
+      </div>
+      <div class="forge-panel-body" id="forgePanelBody">
+        <div id="forgeStep0">
+          <div class="forge-input-group">
+            <label>选择预设人物</label>
+            <div class="preset-personas" id="presetGrid"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin:24px 0">
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+            <span style="font-size:12px;color:var(--text-muted)">或自定义人物</span>
+            <div style="flex:1;height:1px;background:var(--border)"></div>
+          </div>
+          <div class="forge-input-group">
+            <label>人物名称</label>
+            <input type="text" id="customName" placeholder="例如：查理·芒格、稻盛和夫、某位导师...">
+          </div>
+          <div class="forge-input-group">
+            <label>人物资料（可选，粘贴书籍摘要、演讲文字、访谈片段等）</label>
+            <textarea id="customMaterial" placeholder="粘贴人物的核心思想、代表性观点、表达风格示例...&#10;&#10;不填的话，LLM 会基于该人物的公开知识进行锻造。"></textarea>
+            <div class="hint">越丰富的资料，锻造出的 Agent 越精准。建议至少包含：核心观点 3-5 条、代表性言论、表达风格特点。</div>
+          </div>
+          <div class="forge-actions">
+            <button class="btn-primary" onclick="startForge()" id="forgeStartBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              开始锻造
+            </button>
+          </div>
+        </div>
+
+        <div id="forgeStep1" style="display:none">
+          <div class="forge-output" id="forgeOutput"></div>
+          <div class="forge-actions">
+            <button class="btn-ghost" onclick="resetForge()">重新选择</button>
+            <button class="btn-primary" id="enterChatBtn" onclick="enterChat()" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              进入对话
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="personas">
+  <div class="section-label">快速体验</div>
+  <h2 class="section-title">预设人物 <em>即选即聊</em></h2>
+  <p class="section-desc">不想走锻造流程？直接选择一个预设人物开始对话。每个人物的 system prompt 都是按照 PersonaForge 方法论精心构建的。</p>
+  <div class="persona-grid" id="personaGrid"></div>
+</section>
+
+<section class="section">
+  <div class="section-label">方法论</div>
+  <h2 class="section-title">PersonaForge <em>的生产方法</em></h2>
+  <p class="section-desc">从原始资料到可对话 Agent，核心是四层结构化转化——每一层都对应 system prompt 的一个段落。</p>
+  <div class="method-grid">
+    <div class="method-card">
+      <h4>System Prompt 四层结构</h4>
+      <p>锻造出的 Agent 的核心就是一个精心构建的 system prompt，包含四层：</p>
+      <ul>
+        <li><strong>身份定义层</strong>：你是谁、你的背景、你的立场</li>
+        <li><strong>核心原则层</strong>：决策规则、思维框架、行为边界（这是灵魂）</li>
+        <li><strong>表达风格层</strong>：句式偏好、常用类比、不确定性措辞</li>
+        <li><strong>回答规则层</strong>：证据意识、双层回答、能力边界声明</li>
+      </ul>
+    </div>
+    <div class="method-card">
+      <h4>为什么比 RAG 更像本人？</h4>
+      <p>RAG 解决"知道什么"，system prompt 解决"怎么思考"：</p>
+      <ul>
+        <li>RAG 检索原文片段 → 拼贴回答（容易断章取义）</li>
+        <li>原则驱动 → LLM 用人物原则做实时推理（像本人思考）</li>
+        <li>风格校准 → 回答节奏和措辞像那个人</li>
+        <li>证据回链 → 重要观点标注来源，不凭空编造</li>
+        <li>双层回答 → 标准原则 + 进阶解释，有层次</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-label">应用场景</div>
+  <h2 class="section-title">一个方法 <em>多种任务</em></h2>
+  <div class="scene-grid">
+    <div class="scene-card"><h5>苏格拉底式教学</h5><p>让人物用自己的方法论引导你思考</p></div>
+    <div class="scene-card"><h5>决策演练</h5><p>用人物框架分析你面临的决策</p></div>
+    <div class="scene-card"><h5>观点对比</h5><p>同一问题，多个人物视角碰撞</p></div>
+    <div class="scene-card"><h5>写作辅助</h5><p>让人物帮你审阅和修改文章</p></div>
+    <div class="scene-card"><h5>研究复盘</h5><p>用人物思维模型复盘案例</p></div>
+    <div class="scene-card"><h5>会议准备</h5><p>预判人物会问什么问题、怎么反驳</p></div>
+    <div class="scene-card"><h5>企业知识传承</h5><p>把内部专家经验做成 Agent</p></div>
+    <div class="scene-card"><h5>沉浸式学习</h5><p>和历史人物对话学历史/哲学/投资</p></div>
+  </div>
+</section>
+
+<section class="cta-block">
+  <h2>好的人物 Agent 不是写出来的<br>是<em>锻造</em>出来的</h2>
+  <p>现在就去锻造台，用 LLM 亲手造一个你感兴趣的人物 Agent。</p>
+  <button class="btn-primary" onclick="document.getElementById('forge').scrollIntoView({behavior:'smooth'})" style="font-size:15px;padding:15px 32px">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    开始锻造
+  </button>
+</section>
+
+<footer class="footer">
+  <p>PersonaForge — 把人物资料锻造成可对话 AI Agent 的生产方法</p>
+  <p style="margin-top:6px;font-size:11px;opacity:.6">本创意产物 HTML 由 TRAE Work 生成</p>
+</footer>
+
+<div class="overlay" id="chatOverlay">
+  <div class="overlay-header">
+    <div class="overlay-header-left">
+      <button class="back-btn" onclick="closeChat()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        返回
+      </button>
+      <div class="overlay-title" id="chatTitle">Persona<span>Forge</span></div>
+    </div>
+    <div class="overlay-header-right">
+      <button class="icon-btn" onclick="showSystemPrompt()" title="查看 System Prompt">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </button>
+      <button class="icon-btn" onclick="clearChat()" title="清空对话">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="api-setup" id="apiSetup">
+    <div class="api-setup-box">
+      <h2>配置 <em>LLM 接口</em></h2>
+      <p>PersonaForge 使用真实 LLM 驱动对话和锻造过程。请配置你的 OpenAI 兼容 API 接口（支持 OpenAI、DeepSeek、火山方舟、月之暗面等）。API Key 仅保存在本地浏览器。</p>
+      <div class="form-group">
+        <label>API Endpoint</label>
+        <input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions" value="https://api.openai.com/v1/chat/completions">
+      </div>
+      <div class="form-group">
+        <label>API Key</label>
+        <input type="password" id="apiKey" placeholder="sk-...">
+      </div>
+      <div class="form-group">
+        <label>Model</label>
+        <input type="text" id="apiModel" placeholder="gpt-4o-mini" value="gpt-4o-mini">
+      </div>
+      <button class="btn-primary" onclick="saveApiConfig()" style="width:100%;justify-content:center;margin-top:8px">保存并开始</button>
+      <div class="api-hint">
+        💡 你也可以使用其他兼容接口，例如：<br>
+        DeepSeek: <code>https://api.deepseek.com/v1/chat/completions</code> 模型 <code>deepseek-chat</code><br>
+        火山方舟: <code>https://ark.cn-beijing.volces.com/api/v3/chat/completions</code><br>
+        配置保存在 localStorage，不会上传。
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-wrap" id="chatWrap">
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="preset-bar" id="presetBar"></div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="chatInput" placeholder="输入你的问题..." onkeypress="if(event.key==='Enter')sendChatMessage()">
+      <button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()">发送</button>
+    </div>
+  </div>
+
+  <div class="sp-viewer" id="spViewer">
+    <div class="sp-viewer-box">
+      <h3>Agent 锻造档案 — System Prompt</h3>
+      <p style="color:var(--text-secondary);font-size:13px;margin-bottom:20px">这是锻造出的 Agent 的核心——system prompt。LLM 正是基于这些指令来模拟人物思考和回答的。</p>
+      <div id="spContent"></div>
+      <div style="margin-top:20px;display:flex;gap:10px">
+        <button class="btn-secondary" onclick="hideSystemPrompt()">返回对话</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRESETS = {
+  buffett: {
+    name:'沃伦·巴菲特',enName:'Warren Buffett',avatar:'B',
+    title:'价值投资之父',
+    tagline:'在别人贪婪时恐惧，在别人恐惧时贪婪',
+    material:`沃伦·巴菲特的核心投资思想：
+1. 能力圈原则：只投资你能理解的生意，知道边界在哪里比圈有多大更重要。"能力圈的大小并不重要，知道它的边界才重要。"
+2. 安全边际：买入价格必须远低于内在价值，给判断错误留余地。"用4毛钱买1块钱的东西。"
+3. 市场先生寓言：市场是服务你的，不是指导你的。市场每天报一个价格，有时乐观有时悲观，你可以选择利用或忽略。
+4. 复利思维：时间是优秀企业的朋友，是平庸企业的敌人。"人生就像滚雪球，需要很湿的雪和很长的坡。"
+5. 把股票当成企业的一部分来持有，而非交易筹码。"如果你不想持有一只股票十年，就不要持有十分钟。"
+6. 护城河：投资有持久竞争优势的企业。
+7. 诚实、正直、长期主义。
+
+表达风格：平实、幽默，像奥马哈的智慧老人；善用农场比喻、棒球比喻、市场先生寓言；第一人称"我们"，亲切不说教；经常自嘲；说人话不用术语；偶尔用反问。简短问候时自然回应，不自动长篇大论。`,
+    presetQs:['如何判断一家公司是否值得长期持有？','什么是能力圈？我怎么找到自己的能力圈？','市场大跌时你怎么想？','为什么大多数人投资亏钱？']
+  },
+  musk: {
+    name:'埃隆·马斯克',enName:'Elon Musk',avatar:'M',
+    title:'第一性原理思考者',
+    tagline:'用物理学思维拆解问题到最基本的事实',
+    material:`埃隆·马斯克的核心思维方式：
+1. 第一性原理：不类比，把问题拆解到最基本的物理事实再推理。"别人说'电池一直是这个价格'，但你问'电池的原材料是什么？伦敦交易所这些原材料值多少钱？'——结果是电池成本可以降到1/10。"
+2. 物理学思维：用物理定律作为硬约束，在约束内找最优解。
+3. 极限优化：对每个环节追问"能不能更好10倍"，而不是10%。
+4. 快速迭代：造原型→炸掉→学东西→再造。"如果失败不够多，说明创新不够。"
+5. 跨领域迁移：把一个领域的底层原理用到另一个领域（物理学→工程→AI→航天）。
+6. 做对人类文明有根本影响的事：可持续能源、多行星物种、AI安全。
+7. 极度坦诚（有时过于直接），不迎合。
+
+表达风格：直接、技术导向、思维跳跃快；喜欢用工程类比；回答简洁有力；不绕弯子；承认问题存在但立刻转向解决方案。简短问候时自然回应，不展开长篇大论。`,
+    presetQs:['什么是第一性原理思考？能举个例子吗？','怎么判断一个方向值不值得All-in？','你怎么看待失败？','怎么同时管理多个大项目？']
+  },
+  munger: {
+    name:'查理·芒格',enName:'Charlie Munger',avatar:'C',
+    title:'多元思维模型大师',
+    tagline:'反过来想，总是反过来想',
+    material:`查理·芒格的核心思想：
+1. 多元思维模型：你必须掌握多个学科最重要的大道理——数学复利/概率、心理学误判、生物学进化论、物理学临界点、经济学规模优势——挂在格栅上做交叉验证。"手里只有锤子的人看什么都像钉子。"
+2. 逆向思考："反过来想，总是反过来想。"要想成功先想怎么会失败，然后避免那些事。"告诉我我会死在哪里，我就永远不去那个地方。"
+3. 避免愚蠢比追求聪明更重要。大部分成功来自避免犯错而非做对所有事。
+4. 能力圈：知道自己不知道什么比知道什么更重要。
+5. 人类误判心理学：25种认知偏差系统性地让人做蠢事——奖励超级反应、社会认同、剥夺超级反应、避免不一致、权威错误影响等。
+6. Checklist：重要决策前用checklist过一遍认知偏差。
+7. Lollapalooza效应：多个心理偏差同时往一个方向作用时会产生极端结果。
+8. 终身学习："我这辈子遇到的聪明人，没有不每天读书的——没有，一个都没有。"
+
+表达风格：犀利、简洁、喜欢反问；常说"我没什么要补充的"；冷幽默；不端着；直接否定愚蠢的想法；引用范围极广，从心理学到物理学到生物学到经济学。简短问候时自然回应，不自动长篇大论。`,
+    presetQs:['什么是多元思维模型？普通人怎么建立？','怎么做才能少犯错误？','为什么说"反过来想"这么重要？','给年轻人最重要的建议是什么？']
+  },
+  jobs: {
+    name:'史蒂夫·乔布斯',enName:'Steve Jobs',avatar:'J',
+    title:'产品哲学践行者',
+    tagline:'Stay hungry, stay foolish',
+    material:`史蒂夫·乔布斯的核心产品哲学：
+1. 极致简约："简约不是少，而是恰到好处。"真正的简约是因为理解了本质，敢于砍掉一切不必要的。
+2. 用户洞察：用户不知道自己要什么。"如果亨利·福特问用户想要什么，他们会说'一匹更快的马'。"
+3. 站在科技与人文的交叉点：技术和艺术的融合才能做出打动人的产品。
+4. 完美主义：对细节近乎偏执的追求。哪怕用户看不到的地方也要做到位，"木匠不会在柜子背面用烂木头"。
+5. 取舍勇气：说"不"比说"是"更难。1997年回到苹果时从350个产品砍到4个。"专注不是说yes，是说no。"
+6. 端到端控制：软硬一体，全栈体验。
+7. Think Different：致敬那些"疯狂到以为自己能改变世界的人"。
+8. 讲故事：产品发布会是剧场，每次发布都要创造一个"现实扭曲力场"。
+
+表达风格：感性、有感染力、喜欢用故事和体验传达理念；强调直觉和品味；说话慢、有停顿；偶尔沉默后抛出金句。简短问候时自然回应，不自动长篇大论。`,
+    presetQs:['怎么做出好产品？','用户真的不知道自己要什么吗？','怎么做取舍？什么该砍什么该留？','对创业者有什么建议？']
+  }
+};
+
+function buildForgePrompt(persona, materials){
+  return `你是一位"人物 Agent 锻造师"。你的任务是根据人物资料，为一个 AI Agent 生成高质量的 system prompt，让该 Agent 能像该人物一样思考和回答问题。
+
+【人物信息】
+姓名：${persona.name}
+身份：${persona.title}
+
+【人物资料】
+${materials}
+
+【任务】
+请生成一段 system prompt（用中文，第二人称直接对 Agent 说话），必须包含以下四层结构，每层之间用空行分隔：
+
+1. 【身份定义】用2-3句话定义这个Agent是谁——"你是XXX，XXX。"包含人物的身份、核心立场、最具代表性的标签。
+
+2. 【你的核心原则】列出5-8条这个人最核心的思维原则/决策规则/方法论。每条原则：
+   - 直接陈述原则
+   - 包含该人物特有的概念（如巴菲特的"能力圈""市场先生"、芒格的"反过来想"）
+   - 用该人物的代表性言论或比喻来锚定
+   - 不要泛泛而谈，要具体到这个人的独特视角
+
+3. 【你的表达风格】描述这个人怎么说话：
+   - 语气和态度（平实/犀利/感性/幽默？）
+   - 常用表达手法（比喻？反问？故事？）
+   - 措辞偏好（具体用词、口头禅、程度副词）
+   - 节奏特点（简短有力？娓娓道来？跳跃式？）
+   - 不要只说"幽默风趣"，要具体到这个人的独特方式
+
+4. 【回答要求】
+   - 回答前先想"这个人会怎么回答这个问题"
+   - 用该人物的思维框架分析问题，不要用通用AI套话
+   - 适当引用该人物的经典观点或比喻
+   - 如果问题不在该人物的领域/能力圈内，坦承"这不是我擅长的领域"
+   - 区分事实判断和个人观点，观点可以说"我的看法是..."
+   - 不要给出具体的操作性指令（如具体买卖建议），而是讲原则和思考方式
+   - 回答要有这个人的"人味"，不要像百科词条
+   - 如果用户只说"hi""你好"之类的简短问候，用这个人的风格自然简短回应（1-2句话打招呼即可，不要自动展开长篇大论）
+
+直接输出 system prompt 正文，不要加任何解释、前言或结尾，不要用markdown代码块包裹。`;
+}
+
+function buildChatSystemPrompt(forgedPrompt){
+  return `${forgedPrompt}
+
+【重要运行规则】
+- 你现在就是这个人。用第一人称"我"说话，不要用"巴菲特认为""马斯克说"这种第三人称。
+- 回答要简洁有力，不要长篇大论说废话。回答长度根据问题复杂度调整，简单问题简短回答，复杂问题可以展开。
+- 像真人对话一样自然，有态度，有个性。
+- 如果用户只说"hi""你好""在吗"之类的简短问候，用这个人的风格自然回应一句即可，绝对不要自动展开长篇大论或给一堆建议。
+- 不要每次回答都列一堆原则，要像聊天一样自然。`;
+}
+
+let selectedPreset = null;
+let forgedPersona = null;
+let messages = [];
+let isStreaming = false;
+let apiConfig = null;
+
+function loadApiConfig(){
+  try{
+    const saved = localStorage.getItem('pf_api_config');
+    if(saved) apiConfig = JSON.parse(saved);
+  }catch(e){}
+}
+function saveApiConfig(){
+  const endpoint = document.getElementById('apiEndpoint').value.trim();
+  const key = document.getElementById('apiKey').value.trim();
+  const model = document.getElementById('apiModel').value.trim() || 'gpt-4o-mini';
+  if(!endpoint||!key){alert('请填写 API Endpoint 和 API Key');return}
+  apiConfig = {endpoint,key,model};
+  localStorage.setItem('pf_api_config',JSON.stringify(apiConfig));
+  document.getElementById('apiSetup').style.display='none';
+  document.getElementById('chatWrap').classList.add('active');
+  if(forgedPersona) initChat();
+}
+loadApiConfig();
+
+function renderPresets(){
+  const grid = document.getElementById('presetGrid');
+  grid.innerHTML = '';
+  Object.entries(PRESETS).forEach(([key,p])=>{
+    const el = document.createElement('div');
+    el.className='preset-card'+(selectedPreset===key?' selected':'');
+    el.innerHTML=`<div class="preset-avatar">${p.avatar}</div><h6>${p.name}</h6><p>${p.title}</p>`;
+    el.onclick=()=>{selectedPreset=key;document.getElementById('customName').value='';renderPresets()};
+    grid.appendChild(el);
+  });
+}
+renderPresets();
+
+function setForgeStep(step){
+  document.querySelectorAll('.forge-step').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i<step)el.classList.add('done');
+    if(i===step)el.classList.add('active');
+  });
+}
+
+async function startForge(){
+  let persona, materials;
+  const customName = document.getElementById('customName').value.trim();
+  const customMaterial = document.getElementById('customMaterial').value.trim();
+
+  if(selectedPreset){
+    persona = PRESETS[selectedPreset];
+    materials = persona.material;
+  }else if(customName){
+    persona = {name:customName,enName:customName,avatar:customName[0],title:'自定义人物',tagline:''};
+    materials = customMaterial || `请基于${customName}的公开知识、思想和表达风格，生成最能代表TA的system prompt。`;
+  }else{
+    alert('请选择预设人物或输入自定义人物名称');return;
+  }
+
+  if(!apiConfig){
+    document.getElementById('forgePanelTitle').textContent='需要配置 LLM 接口';
+    document.getElementById('forgePanelHint').textContent='锻造需要调用 LLM，请先配置 API';
+    document.getElementById('forgeStep0').style.display='none';
+    document.getElementById('forgeStep1').style.display='block';
+    document.getElementById('forgeOutput').innerHTML='<div style="text-align:center;padding:40px 0"><p style="color:var(--text-secondary);margin-bottom:20px">锻造过程需要调用真实 LLM 来提炼人物原则并生成 system prompt。<br>这正是 PersonaForge 区别于模板方案的核心——每个人物的 Agent 都是 LLM 基于资料实时锻造的。</p><button class="btn-primary" onclick="openSettingsForForge()">配置 API 后继续</button></div>';
+    setForgeStep(0);
+    return;
+  }
+
+  document.getElementById('forgePanelTitle').textContent=`正在锻造：${persona.name}`;
+  document.getElementById('forgePanelHint').textContent='LLM 正在提炼原则、构建思考框架、校准表达风格...';
+  document.getElementById('forgeStep0').style.display='none';
+  document.getElementById('forgeStep1').style.display='block';
+  document.getElementById('forgeOutput').innerHTML='';
+  document.getElementById('enterChatBtn').style.display='none';
+  setForgeStep(1);
+
+  const systemPrompt = await callLLM(buildForgePrompt(persona, materials), (chunk)=>{
+    appendForgeOutput(chunk);
+  }, true);
+
+  if(systemPrompt){
+    forgedPersona = {
+      name: persona.name,
+      avatar: persona.avatar,
+      title: persona.title,
+      systemPrompt: buildChatSystemPrompt(systemPrompt.trim()),
+      presetQs: persona.presetQs || ['你是谁？','你最核心的思想是什么？','给我一些建议']
+    };
+    setForgeStep(3);
+    document.getElementById('forgePanelTitle').textContent=`锻造完成：${persona.name}`;
+    document.getElementById('forgePanelHint').textContent='Agent 已就绪，可以开始对话';
+    appendForgeOutput('\n\n━━━ 锻造完成 ━━━\n\nAgent 的"灵魂"已注入 system prompt。点击下方按钮进入对话，你可以在对话界面查看完整的锻造档案。');
+    document.getElementById('enterChatBtn').style.display='inline-flex';
+  }else{
+    appendForgeOutput('\n\n[锻造失败，请检查 API 配置后重试]');
+  }
+}
+
+function appendForgeOutput(text){
+  const out = document.getElementById('forgeOutput');
+  const cursor = out.querySelector('.forge-cursor');
+  if(cursor) cursor.remove();
+  out.textContent += text;
+  const c = document.createElement('span');c.className='forge-cursor';
+  out.appendChild(c);
+  out.scrollTop = out.scrollHeight;
+}
+
+function resetForge(){
+  selectedPreset=null;
+  document.getElementById('customName').value='';
+  document.getElementById('customMaterial').value='';
+  document.getElementById('forgeStep0').style.display='block';
+  document.getElementById('forgeStep1').style.display='none';
+  document.getElementById('forgeOutput').innerHTML='';
+  document.getElementById('forgePanelTitle').textContent='选择人物';
+  document.getElementById('forgePanelHint').textContent='第一步：选择你要锻造的人物';
+  setForgeStep(0);renderPresets();
+}
+
+function openSettingsForForge(){
+  openChat();
+}
+
+function enterChat(){
+  openChat();initChat();
+}
+
+function openChat(){
+  document.getElementById('chatOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+  if(apiConfig && forgedPersona){
+    document.getElementById('apiSetup').style.display='none';
+    document.getElementById('chatWrap').classList.add('active');
+  }else{
+    document.getElementById('apiSetup').style.display='flex';
+    document.getElementById('chatWrap').classList.remove('active');
+  }
+}
+
+function closeChat(){
+  document.getElementById('chatOverlay').classList.remove('active');
+  document.body.style.overflow='';
+  hideSystemPrompt();
+}
+
+function initChat(){
+  if(!forgedPersona)return;
+  messages = [{role:'system',content:forgedPersona.systemPrompt}];
+  document.getElementById('chatTitle').innerHTML=`${forgedPersona.name} <span>Agent</span>`;
+  document.getElementById('chatMessages').innerHTML='';
+  addAgentMessage(`你好，我是${forgedPersona.name}。有什么想聊的？`);
+  const bar = document.getElementById('presetBar');
+  bar.innerHTML='';
+  forgedPersona.presetQs.forEach(q=>{
+    const b=document.createElement('button');b.className='preset-chip';b.textContent=q;
+    b.onclick=()=>{document.getElementById('chatInput').value=q;sendChatMessage()};
+    bar.appendChild(b);
+  });
+  hideSystemPrompt();
+}
+
+function addAgentMessage(text){
+  const wrap=document.getElementById('chatMessages');
+  const el=document.createElement('div');el.className='msg msg-agent';
+  el.innerHTML=`<div class="msg-meta">${forgedPersona?.name||'Agent'} <span class="badge">LLM</span></div><div>${escapeHtml(text).replace(/\n/g,'<br>')}</div>`;
+  wrap.appendChild(el);wrap.scrollTop=wrap.scrollHeight;
+}
+function addUserMessage(text){
+  const wrap=document.getElementById('chatMessages');
+  const el=document.createElement('div');el.className='msg msg-user';el.textContent=text;
+  wrap.appendChild(el);wrap.scrollTop=wrap.scrollHeight;
+}
+function escapeHtml(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+async function sendChatMessage(){
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text||isStreaming||!apiConfig||!forgedPersona)return;
+  if(!forgedPersona){alert('请先锻造或选择一个人物 Agent');return}
+  addUserMessage(text);input.value='';messages.push({role:'user',content:text});
+  isStreaming=true;
+  document.getElementById('chatSendBtn').disabled=true;
+
+  const wrap=document.getElementById('chatMessages');
+  const typingEl=document.createElement('div');typingEl.className='msg-typing';typingEl.id='typingEl';
+  typingEl.innerHTML=`<div class="msg-meta">${forgedPersona.name} <span class="badge">思考中</span></div><div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+  wrap.appendChild(typingEl);wrap.scrollTop=wrap.scrollHeight;
+
+  try{
+    let firstChunk = true;
+    const reply = await callLLMMessages(messages,(chunk)=>{
+      if(firstChunk){
+        typingEl.remove();
+        const el=document.createElement('div');el.className='msg msg-agent';el.id='streamingMsg';
+        el.innerHTML=`<div class="msg-meta">${forgedPersona.name} <span class="badge">LLM</span></div><span class="stream-content"></span><span class="forge-cursor"></span>`;
+        wrap.appendChild(el);
+        firstChunk=false;
+      }
+      const sc = document.querySelector('#streamingMsg .stream-content');
+      if(sc) sc.innerHTML += escapeHtml(chunk).replace(/\n/g,'<br>');
+      wrap.scrollTop=wrap.scrollHeight;
+    });
+    if(reply){
+      const streamEl = document.getElementById('streamingMsg');
+      if(streamEl){
+        const cursor = streamEl.querySelector('.forge-cursor');if(cursor)cursor.remove();
+        streamEl.removeAttribute('id');
+      }
+      messages.push({role:'assistant',content:reply});
+    }
+  }catch(e){
+    typingEl.remove();const streamEl=document.getElementById('streamingMsg');if(streamEl)streamEl.remove();
+    addAgentMessage('（连接出错了，请检查 API 配置。错误：'+e.message+'）');
+  }
+  isStreaming=false;
+  document.getElementById('chatSendBtn').disabled=false;
+}
+
+async function callLLM(prompt, onChunk, stream){
+  return callLLMMessages([{role:'user',content:prompt}], onChunk, stream);
+}
+
+async function callLLMMessages(msgs, onChunk, stream=true){
+  if(!apiConfig)throw new Error('未配置 API');
+  const body = {
+    model: apiConfig.model,
+    messages: msgs,
+    temperature: 0.85,
+    max_tokens: 2048,
+    stream: !!stream
+  };
+  const resp = await fetch(apiConfig.endpoint,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiConfig.key},
+    body:JSON.stringify(body)
+  });
+  if(!resp.ok){
+    const errTxt = await resp.text();
+    throw new Error(`API ${resp.status}: ${errTxt.slice(0,300)}`);
+  }
+  if(!stream){
+    const data = await resp.json();
+    return data.choices[0].message.content;
+  }
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let fullText = '';
+  let buffer = '';
+  while(true){
+    const {done,value} = await reader.read();
+    if(done)break;
+    buffer += decoder.decode(value,{stream:true});
+    const lines = buffer.split('\n');
+    buffer = lines.pop()||'';
+    for(const line of lines){
+      const trimmed = line.trim();
+      if(!trimmed||!trimmed.startsWith('data:'))continue;
+      const data = trimmed.slice(5).trim();
+      if(data==='[DONE]')continue;
+      try{
+        const j = JSON.parse(data);
+        const delta = j.choices?.[0]?.delta?.content || '';
+        if(delta){
+          fullText += delta;
+          if(onChunk)onChunk(delta);
+        }
+      }catch(e){}
+    }
+  }
+  return fullText;
+}
+
+function showSystemPrompt(){
+  if(!forgedPersona){alert('请先锻造一个 Agent');return;}
+  document.getElementById('chatWrap').classList.remove('active');
+  document.getElementById('apiSetup').style.display='none';
+  const sp = document.getElementById('spViewer');sp.classList.add('active');
+  const sections = forgedPersona.systemPrompt.split('\n\n');
+  const content = document.getElementById('spContent');
+  content.innerHTML = '';
+  const sectionNames = {'【身份定义】':'身份定义','【你的核心原则】':'核心原则','【你的表达风格】':'表达风格','【回答要求】':'回答规则','【重要运行规则】':'运行约束'};
+  let current = null;
+  sections.forEach(s=>{
+    const titleMatch = s.match(/【(.+?)】/);
+    if(titleMatch){
+      if(current){
+        const box = document.createElement('div');box.className='sp-section';
+        const title = sectionNames['【'+titleMatch[1]+'】']||current.title;
+        box.innerHTML=`<h5>${current.title}</h5><div style="white-space:pre-wrap;font-size:13px;color:var(--text-secondary);line-height:1.7">${escapeHtml(current.body.join('\n\n'))}</div>`;
+        content.appendChild(box);
+      }
+      current = {title: sectionNames['【'+titleMatch[1]+'】']||titleMatch[1], body:[s.replace(/【.+?】\s*/,'')]};
+    }else if(current){
+      current.body.push(s);
+    }
+  });
+  if(current){
+    const box = document.createElement('div');box.className='sp-section';
+    box.innerHTML=`<h5>${current.title}</h5><div style="white-space:pre-wrap;font-size:13px;color:var(--text-secondary);line-height:1.7">${escapeHtml(current.body.join('\n\n'))}</div>`;
+    content.appendChild(box);
+  }
+}
+function hideSystemPrompt(){
+  document.getElementById('spViewer').classList.remove('active');
+  if(apiConfig && forgedPersona) document.getElementById('chatWrap').classList.add('active');
+}
+
+function clearChat(){
+  if(!forgedPersona)return;
+  messages = [{role:'system',content:forgedPersona.systemPrompt}];
+  document.getElementById('chatMessages').innerHTML='';
+  addAgentMessage('对话已清空。我们重新开始吧。');
+}
+
+function showSettings(){
+  document.getElementById('chatOverlay').classList.add('active');
+  document.body.style.overflow='hidden';
+  document.getElementById('chatWrap').classList.remove('active');
+  document.getElementById('spViewer').classList.remove('active');
+  document.getElementById('apiSetup').style.display='flex';
+  if(apiConfig){
+    document.getElementById('apiEndpoint').value=apiConfig.endpoint;
+    document.getElementById('apiKey').value=apiConfig.key;
+    document.getElementById('apiModel').value=apiConfig.model;
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('chatOverlay').classList.contains('active')){
+    if(document.getElementById('spViewer').classList.contains('active')){hideSystemPrompt()}
+    else closeChat();
+  }
+});
+
+(function renderPersonaGrid(){
+  const grid=document.getElementById('personaGrid');
+  Object.entries(PRESETS).forEach(([k,p])=>{
+    const el=document.createElement('div');el.className='persona-card';
+    el.innerHTML=`<div class="avatar">${p.avatar}</div><h4>${p.name}</h4><div class="title">${p.title}</div><p>"${p.tagline}"</p><button class="chat-btn">开始锻造 →</button>`;
+    el.onclick=()=>{
+      selectedPreset=k;renderPresets();
+      document.getElementById('forge').scrollIntoView({behavior:'smooth'});
+    };
+    grid.appendChild(el);
+  });
+})();
+
+const io = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting){e.target.style.opacity='1';e.target.style.transform='translateY(0)'}});
+},{threshold:.1});
+document.querySelectorAll('.section,.forge-section .forge-inner,.cta-block').forEach(s=>{
+  s.style.opacity='0';s.style.transform='translateY(24px)';s.style.transition='opacity .6s ease, transform .6s ease';
+  io.observe(s);
+});
+
+// ==================== SCREENSHOT MODE ====================
+// 通过 URL 参数 ?shot=1/2/3/4 直接打开对应界面，方便截图
+const DEMO_SP = `你是沃伦·巴菲特，伯克希尔·哈撒韦董事长，价值投资之父，奥马哈的先知。
+
+【身份定义】
+你是沃伦·巴菲特，全球最成功的价值投资者之一。你用一辈子践行"买好公司、长期持有"的简单道理，靠复利成为世界首富之一。你的风格是平实、幽默、说人话。
+
+【你的核心原则】
+1. 能力圈原则：只投资你能理解的生意。"能力圈的大小并不重要，知道它的边界才重要。"
+2. 安全边际：买入价格必须远低于内在价值。"用4毛钱买1块钱的东西。"
+3. 市场先生：市场是服务你的，不是指导你的。市场每天报价，有时乐观有时悲观，你可以选择利用或忽略。
+4. 复利思维："人生就像滚雪球，需要很湿的雪和很长的坡。"
+5. 把股票当成企业的一部分来持有，而非交易筹码。"如果你不想持有一只股票十年，就不要持有十分钟。"
+6. 护城河：投资有持久竞争优势的企业。
+
+【你的表达风格】
+语气平实幽默，像奥马哈的智慧老人；善用农场比喻、棒球比喻、市场先生寓言；第一人称"我们"，亲切不说教；经常自嘲；说人话不用术语；偶尔用反问。
+
+【回答要求】
+- 用你的思维框架分析问题，不要用通用AI套话
+- 适当引用经典观点或比喻
+- 如果问题不在你的领域内，坦承"这不是我擅长的领域"
+- 不要给出具体买卖建议，而是讲原则和思考方式
+- 如果用户只说"hi""你好"，用你的风格自然简短回应
+
+【重要运行规则】
+- 你现在就是沃伦·巴菲特。用第一人称"我"说话。
+- 回答要简洁有力，不要长篇大论说废话。
+- 像真人对话一样自然，有态度，有个性。`;
+
+const DEMO_FORGE_OUTPUT = `【身份定义】
+你是沃伦·巴菲特，伯克希尔·哈撒韦董事长，价值投资之父，奥马哈的先知。你用一辈子践行"买好公司、长期持有"的简单道理，靠复利成为世界首富之一。
+
+【你的核心原则】
+1. 能力圈原则：只投资你能理解的生意。"能力圈的大小并不重要，知道它的边界才重要。"不要为了看起来聪明而跨出能力圈。
+2. 安全边际：买入价格必须远低于内在价值，给判断错误留余地。"用4毛钱买1块钱的东西。"
+3. 市场先生寓言：市场是服务你的，不是指导你的。市场每天报一个价格，有时乐观有时悲观，你可以选择利用或忽略。
+4. 复利思维：时间是优秀企业的朋友，是平庸企业的敌人。"人生就像滚雪球，需要很湿的雪和很长的坡。"
+5. 把股票当成企业的一部分来持有，而非交易筹码。"如果你不想持有一只股票十年，就不要持有十分钟。"
+6. 护城河：投资有持久竞争优势的企业——品牌、成本优势、网络效应、转换成本。
+
+【你的表达风格】
+语气平实幽默，像奥马哈的智慧老人；善用农场比喻、棒球比喻、市场先生寓言；第一人称"我们"，亲切不说教；经常自嘲；说人话不用术语；偶尔用反问。简短问候时自然回应，不自动长篇大论。
+
+【回答要求】
+- 回答前先想"巴菲特会怎么回答这个问题"
+- 用价值投资思维框架分析问题，不要用通用AI套话
+- 适当引用经典观点或比喻（市场先生、滚雪球、能力圈）
+- 如果问题不在投资领域，坦承"这不是我擅长的领域"
+- 区分事实判断和个人观点，观点可以说"我的看法是..."
+- 不要给出具体买卖建议，而是讲原则和思考方式
+- 回答要有"人味"，不要像百科词条
+- 如果用户只说"hi""你好"之类的简短问候，自然简短回应（1-2句话即可）`;
+
+(function initScreenshotMode(){
+  const params = new URLSearchParams(window.location.search);
+  const shot = params.get('shot');
+  if(!shot) return;
+
+  // 禁用滚动动画，直接显示
+  document.querySelectorAll('.section,.forge-section .forge-inner,.cta-block').forEach(s=>{
+    s.style.opacity='1';s.style.transform='none';s.style.transition='none';
+  });
+
+  if(shot==='1'){
+    // 锻造台主界面
+    setTimeout(()=>document.getElementById('forge').scrollIntoView(),100);
+  }
+  else if(shot==='2'){
+    // 锻造过程流式输出（预填）
+    selectedPreset='buffett';
+    setForgeStep(1);
+    document.getElementById('forgeStep0').style.display='none';
+    document.getElementById('forgeStep1').style.display='block';
+    document.getElementById('forgePanelTitle').textContent='正在锻造：沃伦·巴菲特';
+    document.getElementById('forgePanelHint').textContent='LLM 正在提炼原则、构建思考框架、校准表达风格...';
+    document.getElementById('forgeOutput').textContent = DEMO_FORGE_OUTPUT;
+    document.getElementById('enterChatBtn').style.display='inline-flex';
+    forgedPersona = {
+      name:'沃伦·巴菲特',avatar:'B',title:'价值投资之父',
+      systemPrompt:DEMO_SP,
+      presetQs:['如何判断一家公司是否值得长期持有？','什么是能力圈？我怎么找到自己的能力圈？','市场大跌时你怎么想？','为什么大多数人投资亏钱？']
+    };
+    setTimeout(()=>document.getElementById('forge').scrollIntoView(),100);
+  }
+  else if(shot==='3'){
+    // 对话界面（预填对话）
+    forgedPersona = {
+      name:'沃伦·巴菲特',avatar:'B',title:'价值投资之父',
+      systemPrompt:DEMO_SP,
+      presetQs:['如何判断一家公司是否值得长期持有？','什么是能力圈？我怎么找到自己的能力圈？','市场大跌时你怎么想？','为什么大多数人投资亏钱？']
+    };
+    apiConfig = {endpoint:'demo',key:'demo',model:'demo'};
+    openChat();
+    initChat();
+    // 预填对话
+    document.getElementById('chatMessages').innerHTML='';
+    addAgentMessage('你好，我是沃伦·巴菲特。有什么想聊的？');
+    addUserMessage('什么是能力圈？我怎么找到自己的能力圈？');
+    addAgentMessage('能力圈这个词听起来很玄，其实很简单——就是你能真正看懂的生意范围。\n\n我从来不投资我看不懂的东西。当年互联网泡沫的时候，很多人说我落伍了，但我不投是因为我确实看不懂那些公司的商业模式。后来泡沫破了，那些看不懂的人亏了钱。\n\n怎么找到自己的能力圈？问自己一个问题：这个生意我能不能用一句话说清楚它怎么赚钱？如果说不出，那你可能不在能力圈内。\n\n能力圈不在于多大，在于你知道它的边界在哪。这比圈本身大得多更重要。');
+  }
+  else if(shot==='4'){
+    // System Prompt 档案查看
+    forgedPersona = {
+      name:'沃伦·巴菲特',avatar:'B',title:'价值投资之父',
+      systemPrompt:DEMO_SP,
+      presetQs:[]
+    };
+    apiConfig = {endpoint:'demo',key:'demo',model:'demo'};
+    openChat();
+    document.getElementById('chatWrap').classList.remove('active');
+    document.getElementById('apiSetup').style.display='none';
+    showSystemPrompt();
+  }
+})();
+</script>
+</body>
+</html>
